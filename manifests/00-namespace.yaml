@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: 115029258-hpa
+  labels:
+    project: "hpaunderload"
+    student-id: "115029258"
