@@ -1,0 +1,28 @@
+# Environment files and secrets
+.env
+.env.*
+*.pem
+*.key
+*.token
+
+# Temporary files
+*.tmp
+*.log
+*.swp
+*~
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# IDE settings
+.vscode/
+.idea/
+
+# Go build output
+app/burn-app
+app/server
+*.exe
+
+# Generated quota files
+rendered-quota.yaml
