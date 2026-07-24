@@ -1,0 +1,2 @@
+NAME                 REFERENCE                   TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+115029258-burn-hpa   Deployment/115029258-burn   cpu: 0%/50%   1         10        1          31h
