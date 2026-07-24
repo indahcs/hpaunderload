@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata: 
+  name: 115029258-quota
+  namespace: 115029258-hpa 
+  labels:
+    student-id: "115029258"
+
+spec: 
+  hard: 
+    pods: "${QUOTA_PODS}"
+    requests.cpu: "${QUOTA_CPU}"
