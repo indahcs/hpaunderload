@@ -1,0 +1,40 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: 115029258-load
+  namespace: 115029258-hpa
+  labels:
+    app: 115029258-load
+    student-id: "115029258"
+  
+spec: 
+  parallelism: 3
+  completions: 3
+  backoffLimit: 0
+
+  template: 
+    metadata: 
+      labels: 
+        app: 115029258-load
+        student-id: "115029258"
+    
+    spec: 
+      restartPolicy: Never
+      containers: 
+        - name: load-generator 
+          image: busybox
+          command: 
+            - /bin/sh
+            - -c
+            - |
+              echo "Starting load against 115029258-burn-svc"
+              while true; do
+                wget -q -O- http://115029258-burn-svc
+                echo
+              done
+          
+          resources: 
+            requests: 
+              cpu: 50m 
+            limits: 
+              cpu: 100m

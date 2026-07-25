@@ -1,0 +1,218 @@
++ STUDENT_ID=115029258
++ CLUSTER_NAME=115029258-hpa
++ NAMESPACE=115029258-hpa
++ command -v docker
++ command -v kind
++ command -v kubectl
++ command -v sed
++ docker info
++ test -f kind-config.yaml
++ test -f manifests/metrics-server.yaml
++ test -f manifests/00-namespace.yaml
++ test -f manifests/01-deployment.yaml
++ test -f manifests/02-service.yaml
++ test -f manifests/03-hpa.yaml
++ test -f manifests/quota.yaml
++ test -f manifests/load-job.yaml
++ test -f apply-quota.sh
++ kind get clusters
++ grep -Fxq 115029258-hpa
++ kind delete cluster --name 115029258-hpa
+Deleting cluster "115029258-hpa" ...
+Deleted nodes: ["115029258-hpa-worker2" "115029258-hpa-control-plane" "115029258-hpa-worker"]
++ kind create cluster --name 115029258-hpa --config kind-config.yaml --wait 180s
+Creating cluster "115029258-hpa" ...
+ • Ensuring node image (kindest/node:v1.36.1) 🖼  ...
+ ✓ Ensuring node image (kindest/node:v1.36.1) 🖼
+ • Preparing nodes 📦 📦 📦   ...
+ ✓ Preparing nodes 📦 📦 📦 
+ • Writing configuration 📜  ...
+ ✓ Writing configuration 📜
+ • Starting control-plane 🕹️  ...
+ ✓ Starting control-plane 🕹️
+ • Installing CNI 🔌  ...
+ ✓ Installing CNI 🔌
+ • Installing StorageClass 💾  ...
+ ✓ Installing StorageClass 💾
+ • Joining worker nodes 🚜  ...
+ ✓ Joining worker nodes 🚜
+ • Waiting ≤ 3m0s for control-plane = Ready ⏳  ...
+ ✓ Waiting ≤ 3m0s for control-plane = Ready ⏳
+ • Ready after 10s 💚
+Set kubectl context to "kind-115029258-hpa"
+You can now use your cluster with:
+
+kubectl cluster-info --context kind-115029258-hpa
+
+Thanks for using kind! 😊
++ NODES_READY=false
+++ seq 1 36
++ for ATTEMPT in $(seq 1 36)
+++ kubectl get nodes --no-headers
+++ awk '$2 == "Ready" {count++} END {print count + 0}'
++ READY_NODES=1
++ echo 'Waiting for nodes: 1/3 Ready, attempt 1/36'
+Waiting for nodes: 1/3 Ready, attempt 1/36
++ '[' 1 -eq 3 ']'
++ sleep 5
++ for ATTEMPT in $(seq 1 36)
+++ kubectl get nodes --no-headers
+++ awk '$2 == "Ready" {count++} END {print count + 0}'
++ READY_NODES=3
++ echo 'Waiting for nodes: 3/3 Ready, attempt 2/36'
+Waiting for nodes: 3/3 Ready, attempt 2/36
++ '[' 3 -eq 3 ']'
++ NODES_READY=true
++ break
++ '[' true = false ']'
++ kubectl get nodes -o wide
+NAME                          STATUS   ROLES           AGE   VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                       KERNEL-VERSION                             CONTAINER-RUNTIME
+115029258-hpa-control-plane   Ready    control-plane   31s   v1.36.1   172.19.0.4    <none>        Debian GNU/Linux 13 (trixie)   6.6.87.2-microsoft-standard-WSL2 (amd64)   containerd://2.3.1
+115029258-hpa-worker          Ready    <none>          18s   v1.36.1   172.19.0.3    <none>        Debian GNU/Linux 13 (trixie)   6.6.87.2-microsoft-standard-WSL2 (amd64)   containerd://2.3.1
+115029258-hpa-worker2         Ready    <none>          18s   v1.36.1   172.19.0.2    <none>        Debian GNU/Linux 13 (trixie)   6.6.87.2-microsoft-standard-WSL2 (amd64)   containerd://2.3.1
++ kubectl apply -f manifests/metrics-server.yaml
+serviceaccount/metrics-server created
+clusterrole.rbac.authorization.k8s.io/system:aggregated-metrics-reader created
+clusterrole.rbac.authorization.k8s.io/system:metrics-server created
+rolebinding.rbac.authorization.k8s.io/metrics-server-auth-reader created
+clusterrolebinding.rbac.authorization.k8s.io/metrics-server:system:auth-delegator created
+clusterrolebinding.rbac.authorization.k8s.io/system:metrics-server created
+service/metrics-server created
+deployment.apps/metrics-server created
+apiservice.apiregistration.k8s.io/v1beta1.metrics.k8s.io created
++ kubectl rollout status deployment/metrics-server -n kube-system --timeout=180s
+Waiting for deployment "metrics-server" rollout to finish: 0 of 1 updated replicas are available...
+deployment "metrics-server" successfully rolled out
++ kubectl get apiservice v1beta1.metrics.k8s.io
+NAME                     SERVICE                      AVAILABLE                      AGE
+v1beta1.metrics.k8s.io   kube-system/metrics-server   False (FailedDiscoveryCheck)   28s
++ kubectl apply -f manifests/00-namespace.yaml
+namespace/115029258-hpa created
++ kubectl apply -f manifests/01-deployment.yaml
+deployment.apps/115029258-burn created
++ kubectl apply -f manifests/02-service.yaml
+service/115029258-burn-svc created
++ kubectl rollout status deployment/115029258-burn -n 115029258-hpa --timeout=180s
+Waiting for deployment "115029258-burn" rollout to finish: 0 of 1 updated replicas are available...
+deployment "115029258-burn" successfully rolled out
++ kubectl apply -f manifests/03-hpa.yaml
+horizontalpodautoscaler.autoscaling/115029258-burn-hpa created
++ ./apply-quota.sh 6 1000m
+Applying ResourceQuota
+ Namespace    : 115029258-hpa
+ Quota Name   : 115029258-quota
+ Pod Limit    : 6
+ CPU Request  : 1000m
+
+resourcequota/115029258-quota created
+
+Name:         115029258-quota
+Namespace:    115029258-hpa
+Resource      Used  Hard
+--------      ----  ----
+pods          1     6
+requests.cpu  200m  1
++ METRICS_READY=false
+++ seq 1 60
++ for ATTEMPT in $(seq 1 60)
++ echo 'Waiting for pod metrics: attempt 1/60'
+Waiting for pod metrics: attempt 1/60
++ kubectl top pods -n 115029258-hpa --no-headers
++ grep -q .
++ sleep 5
++ for ATTEMPT in $(seq 1 60)
++ echo 'Waiting for pod metrics: attempt 2/60'
+Waiting for pod metrics: attempt 2/60
++ kubectl top pods -n 115029258-hpa --no-headers
++ grep -q .
++ sleep 5
++ for ATTEMPT in $(seq 1 60)
++ echo 'Waiting for pod metrics: attempt 3/60'
+Waiting for pod metrics: attempt 3/60
++ kubectl top pods -n 115029258-hpa --no-headers
++ grep -q .
++ sleep 5
++ for ATTEMPT in $(seq 1 60)
++ echo 'Waiting for pod metrics: attempt 4/60'
+Waiting for pod metrics: attempt 4/60
++ kubectl top pods -n 115029258-hpa --no-headers
++ grep -q .
++ METRICS_READY=true
++ break
++ '[' true '!=' true ']'
++ HPA_READY=false
+++ seq 1 30
++ for ATTEMPT in $(seq 1 30)
+++ kubectl get hpa 115029258-burn-hpa -n 115029258-hpa -o 'jsonpath={.status.currentMetrics[0].resource.current.averageUtilization}'
++ HPA_TARGETS=
++ echo 'Waiting for HPA metrics: attempt 1/30'
+Waiting for HPA metrics: attempt 1/30
++ '[' -n '' ']'
++ sleep 5
++ for ATTEMPT in $(seq 1 30)
+++ kubectl get hpa 115029258-burn-hpa -n 115029258-hpa -o 'jsonpath={.status.currentMetrics[0].resource.current.averageUtilization}'
++ HPA_TARGETS=
++ echo 'Waiting for HPA metrics: attempt 2/30'
+Waiting for HPA metrics: attempt 2/30
++ '[' -n '' ']'
++ sleep 5
++ for ATTEMPT in $(seq 1 30)
+++ kubectl get hpa 115029258-burn-hpa -n 115029258-hpa -o 'jsonpath={.status.currentMetrics[0].resource.current.averageUtilization}'
++ HPA_TARGETS=
++ echo 'Waiting for HPA metrics: attempt 3/30'
+Waiting for HPA metrics: attempt 3/30
++ '[' -n '' ']'
++ sleep 5
++ for ATTEMPT in $(seq 1 30)
+++ kubectl get hpa 115029258-burn-hpa -n 115029258-hpa -o 'jsonpath={.status.currentMetrics[0].resource.current.averageUtilization}'
++ HPA_TARGETS=0
++ echo 'Waiting for HPA metrics: attempt 4/30'
+Waiting for HPA metrics: attempt 4/30
++ '[' -n 0 ']'
++ HPA_READY=true
++ break
++ '[' true '!=' true ']'
++ kubectl get nodes -o wide
+NAME                          STATUS   ROLES           AGE    VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                       KERNEL-VERSION                             CONTAINER-RUNTIME
+115029258-hpa-control-plane   Ready    control-plane   104s   v1.36.1   172.19.0.4    <none>        Debian GNU/Linux 13 (trixie)   6.6.87.2-microsoft-standard-WSL2 (amd64)   containerd://2.3.1
+115029258-hpa-worker          Ready    <none>          91s    v1.36.1   172.19.0.3    <none>        Debian GNU/Linux 13 (trixie)   6.6.87.2-microsoft-standard-WSL2 (amd64)   containerd://2.3.1
+115029258-hpa-worker2         Ready    <none>          91s    v1.36.1   172.19.0.2    <none>        Debian GNU/Linux 13 (trixie)   6.6.87.2-microsoft-standard-WSL2 (amd64)   containerd://2.3.1
++ kubectl get all -n 115029258-hpa
+NAME                                 READY   STATUS    RESTARTS   AGE
+pod/115029258-burn-756969954-r96cs   1/1     Running   0          44s
+
+NAME                         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+service/115029258-burn-svc   ClusterIP   10.96.136.11   <none>        80/TCP    44s
+
+NAME                             READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/115029258-burn   1/1     1            1           44s
+
+NAME                                       DESIRED   CURRENT   READY   AGE
+replicaset.apps/115029258-burn-756969954   1         1         1       44s
+
+NAME                                                     REFERENCE                   TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/115029258-burn-hpa   Deployment/115029258-burn   cpu: 0%/50%   1         10        1          34s
++ kubectl get hpa -n 115029258-hpa
+NAME                 REFERENCE                   TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+115029258-burn-hpa   Deployment/115029258-burn   cpu: 0%/50%   1         10        1          34s
++ kubectl describe quota 115029258-quota -n 115029258-hpa
+Name:         115029258-quota
+Namespace:    115029258-hpa
+Resource      Used  Hard
+--------      ----  ----
+pods          1     6
+requests.cpu  200m  1
++ kubectl top nodes
+NAME                          CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)   
+115029258-hpa-control-plane   302m         1%       566Mi           3%          
+115029258-hpa-worker          49m          0%       142Mi           0%          
+115029258-hpa-worker2         55m          0%       164Mi           1%          
++ kubectl top pods -n 115029258-hpa
+NAME                             CPU(cores)   MEMORY(bytes)   
+115029258-burn-756969954-r96cs   1m           1Mi             
++ echo 'HPA under load project bootstrapped successfully'
+HPA under load project bootstrapped successfully
++ echo 'The load Job was not started'
+The load Job was not started
++ echo 'Start load with: kubectl apply -f manifests/load-job.yaml'
+Start load with: kubectl apply -f manifests/load-job.yaml
