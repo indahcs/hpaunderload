@@ -28,7 +28,6 @@ A demonstration project showing how Kubernetes Horizontal Pod Autoscaler (HPA) r
 - [Implementation Highlights](#implementation-highlights)
 - [Design Decisions](#design-decisions)
 - [Known Limitations](#known-limitations)
-- [Key Learning Outcomes](#key-learning-outcomes)
 - [Project Demonstration](#project-demonstration)
 - [References](#references)
 
@@ -583,7 +582,7 @@ Separating the load generator from the application keeps the demonstration repro
 
 Several design choices were made to keep the project simple, reproducible, and easy to demonstrate.
 
-### Go instead of Python
+### Go Language
 
 Go produces a single compiled executable.
 
@@ -649,23 +648,6 @@ These limitations simplify the environment while still demonstrating Kubernetes 
 
 ---
 
-## Key Learning Outcomes
-
-This project provided hands-on experience with several Kubernetes concepts, including:
-
-- building and containerizing a Go application;
-- deploying workloads using Kubernetes Deployments;
-- configuring ClusterIP Services;
-- installing and troubleshooting Metrics Server;
-- implementing Horizontal Pod Autoscaler;
-- understanding the relationship between Deployments, ReplicaSets, and Pods;
-- applying namespace ResourceQuota policies;
-- calculating replica limits using Pod and CPU quotas;
-- observing Kubernetes controller interactions through events; and
-- automating cluster deployment using shell scripts.
-
----
-
 ## Project Demonstration
 
 The `evidence/` directory contains screenshots and command outputs collected during project verification.
@@ -688,20 +670,11 @@ These screenshots demonstrate that the application and Kubernetes resources beha
 
 ## References
 
-- Kubernetes Documentation  
-  https://kubernetes.io/docs/
-
-- Horizontal Pod Autoscaler  
-  https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
-
-- Metrics Server  
-  https://github.com/kubernetes-sigs/metrics-server
-
-- kind (Kubernetes in Docker)  
-  https://kind.sigs.k8s.io/
-
-- Go Programming Language  
-  https://go.dev/
+- Kubernetes Documentation  https://kubernetes.io/docs/
+- Horizontal Pod Autoscaler  https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+- Metrics Server  https://github.com/kubernetes-sigs/metrics-server
+- kind (Kubernetes in Docker)  https://kind.sigs.k8s.io/
+- Go Programming Language  https://go.dev/
 
 ---
 
