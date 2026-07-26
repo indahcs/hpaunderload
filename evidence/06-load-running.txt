@@ -1,0 +1,25 @@
+=== Load Job ===
+NAME             STATUS    COMPLETIONS   DURATION   AGE
+115029258-load   Running   0/3           47s        47s
+
+=== Load Pods ===
+NAME                   READY   STATUS    RESTARTS   AGE
+115029258-load-267f4   1/1     Running   0          47s
+115029258-load-7zm5f   1/1     Running   0          47s
+115029258-load-xknpm   1/1     Running   0          47s
+
+=== All Namespace Pods ===
+NAME                             READY   STATUS    RESTARTS   AGE
+115029258-burn-756969954-c2qrr   1/1     Running   0          10s
+115029258-burn-756969954-k7cx4   1/1     Running   0          5m34s
+115029258-burn-756969954-pstqq   1/1     Running   0          10s
+115029258-load-267f4             1/1     Running   0          47s
+115029258-load-7zm5f             1/1     Running   0          47s
+115029258-load-xknpm             1/1     Running   0          47s
+
+=== Pod Metrics During Load ===
+NAME                             CPU(cores)   MEMORY(bytes)   
+115029258-burn-756969954-k7cx4   501m         6Mi             
+115029258-load-267f4             25m          0Mi             
+115029258-load-7zm5f             24m          0Mi             
+115029258-load-xknpm             25m          1Mi             

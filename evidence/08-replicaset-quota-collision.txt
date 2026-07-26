@@ -1,0 +1,60 @@
+=== ReplicaSet Summary ===
+NAME                       DESIRED   CURRENT   READY   AGE
+115029258-burn-756969954   10        3         3       6m59s
+
+=== ReplicaSet Description ===
+Name:           115029258-burn-756969954
+Namespace:      115029258-hpa
+Selector:       app=115029258-burn,pod-template-hash=756969954
+Labels:         app=115029258-burn
+                pod-template-hash=756969954
+                student-id=115029258
+Annotations:    deployment.kubernetes.io/desired-replicas: 10
+                deployment.kubernetes.io/max-replicas: 13
+                deployment.kubernetes.io/revision: 1
+Controlled By:  Deployment/115029258-burn
+Replicas:       3 current / 10 desired
+Pods Status:    3 Running / 0 Waiting / 0 Succeeded / 0 Failed
+Pod Template:
+  Labels:  app=115029258-burn
+           pod-template-hash=756969954
+           student-id=115029258
+  Containers:
+   burn-app:
+    Image:      icstyoningrum/115029258-burn:v1
+    Port:       8080/TCP (http)
+    Host Port:  0/TCP (http)
+    Limits:
+      cpu:  500m
+    Requests:
+      cpu:      200m
+    Liveness:   http-get http://:http/health delay=10s timeout=2s period=10s #success=1 #failure=3
+    Readiness:  http-get http://:http/health delay=2s timeout=2s period=5s #success=1 #failure=3
+    Environment:
+      STUDENT_ID:       115029258
+      PORT:             8080
+      BURN_ITERATIONS:  5000000
+    Mounts:             <none>
+  Volumes:              <none>
+  Node-Selectors:       <none>
+  Tolerations:          <none>
+Conditions:
+  Type             Status  Reason
+  ----             ------  ------
+  ReplicaFailure   True    FailedCreate
+Events:
+  Type     Reason            Age                 From                   Message
+  ----     ------            ----                ----                   -------
+  Normal   SuccessfulCreate  7m                  replicaset-controller  Created pod: 115029258-burn-756969954-k7cx4
+  Normal   SuccessfulCreate  96s                 replicaset-controller  Created pod: 115029258-burn-756969954-pstqq
+  Warning  FailedCreate      96s                 replicaset-controller  Error creating: pods "115029258-burn-756969954-ktkpt" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+  Normal   SuccessfulCreate  96s                 replicaset-controller  Created pod: 115029258-burn-756969954-c2qrr
+  Warning  FailedCreate      96s                 replicaset-controller  Error creating: pods "115029258-burn-756969954-nl5bt" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+  Warning  FailedCreate      96s                 replicaset-controller  Error creating: pods "115029258-burn-756969954-rx92v" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+  Warning  FailedCreate      96s                 replicaset-controller  Error creating: pods "115029258-burn-756969954-zfgqm" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+  Warning  FailedCreate      96s                 replicaset-controller  Error creating: pods "115029258-burn-756969954-9jlnl" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+  Warning  FailedCreate      96s                 replicaset-controller  Error creating: pods "115029258-burn-756969954-2jdhw" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+  Warning  FailedCreate      95s                 replicaset-controller  Error creating: pods "115029258-burn-756969954-c2c8b" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+  Warning  FailedCreate      95s                 replicaset-controller  Error creating: pods "115029258-burn-756969954-8bcbk" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+  Warning  FailedCreate      95s                 replicaset-controller  Error creating: pods "115029258-burn-756969954-ccszv" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+  Warning  FailedCreate      36s (x14 over 95s)  replicaset-controller  (combined from similar events): Error creating: pods "115029258-burn-756969954-d6vfp" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6

@@ -1,0 +1,108 @@
+=== HPA During Scale-Down ===
+Name:                                                  115029258-burn-hpa
+Namespace:                                             115029258-hpa
+Labels:                                                student-id=115029258
+Annotations:                                           <none>
+CreationTimestamp:                                     Sun, 26 Jul 2026 18:01:21 -0400
+Reference:                                             Deployment/115029258-burn
+Metrics:                                               ( current / target )
+  resource cpu on pods  (as a percentage of request):  0% (1m) / 50%
+Min replicas:                                          1
+Max replicas:                                          10
+Behavior:
+  Scale Up:
+    Stabilization Window: 0 seconds
+    Select Policy: Max
+    Policies:
+      - Type: Pods     Value: 4    Period: 15 seconds
+      - Type: Percent  Value: 100  Period: 15 seconds
+  Scale Down:
+    Stabilization Window: 60 seconds
+    Select Policy: Max
+    Policies:
+      - Type: Percent  Value: 100  Period: 15 seconds
+Deployment pods:       10 current / 10 desired
+Conditions:
+  Type            Status  Reason               Message
+  ----            ------  ------               -------
+  AbleToScale     True    ScaleDownStabilized  recent recommendations were higher than current one, applying the highest recent recommendation
+  ScalingActive   True    ValidMetricFound     the HPA was able to successfully calculate a replica count from cpu resource utilization (percentage of request)
+  ScalingLimited  False   DesiredWithinRange   the desired count is within the acceptable range
+Events:
+  Type     Reason                        Age    From                       Message
+  ----     ------                        ----   ----                       -------
+  Warning  FailedGetResourceMetric       9m52s  horizontal-pod-autoscaler  failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+  Warning  FailedComputeMetricsReplicas  9m52s  horizontal-pod-autoscaler  invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+  Normal   SuccessfulRescale             4m52s  horizontal-pod-autoscaler  New size: 5; reason: cpu resource utilization (percentage of request) above target
+  Normal   SuccessfulRescale             4m7s   horizontal-pod-autoscaler  New size: 9; reason: cpu resource utilization (percentage of request) above target
+  Normal   SuccessfulRescale             3m52s  horizontal-pod-autoscaler  New size: 10; reason: cpu resource utilization (percentage of request) above target
+
+=== Events During Scale-Down ===
+LAST SEEN   TYPE      REASON                         OBJECT                                       MESSAGE
+10m         Normal    ScalingReplicaSet              deployment/115029258-burn                    Scaled up replica set 115029258-burn-756969954 from 0 to 1
+10m         Normal    SuccessfulCreate               replicaset/115029258-burn-756969954          Created pod: 115029258-burn-756969954-k7cx4
+10m         Normal    Scheduled                      pod/115029258-burn-756969954-k7cx4           Successfully assigned 115029258-hpa/115029258-burn-756969954-k7cx4 to 115029258-hpa-worker
+10m         Normal    Pulling                        pod/115029258-burn-756969954-k7cx4           Pulling image "icstyoningrum/115029258-burn:v1"
+10m         Normal    Pulled                         pod/115029258-burn-756969954-k7cx4           Successfully pulled image "icstyoningrum/115029258-burn:v1" in 2.174s (2.174s including waiting). Image size: 7942693 bytes.
+10m         Normal    Created                        pod/115029258-burn-756969954-k7cx4           Container created
+10m         Normal    Started                        pod/115029258-burn-756969954-k7cx4           Container started
+9m52s       Warning   FailedGetResourceMetric        horizontalpodautoscaler/115029258-burn-hpa   failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+9m52s       Warning   FailedComputeMetricsReplicas   horizontalpodautoscaler/115029258-burn-hpa   invalid metrics (1 invalid out of 1), first error is: failed to get cpu resource metric value: failed to get cpu utilization: unable to get metrics for resource cpu: no metrics returned from resource metrics API
+8m32s       Normal    Scheduled                      pod/curl-test                                Successfully assigned 115029258-hpa/curl-test to 115029258-hpa-worker2
+8m32s       Normal    Pulling                        pod/curl-test                                Pulling image "busybox:1.36"
+8m30s       Normal    Pulled                         pod/curl-test                                Successfully pulled image "busybox:1.36" in 1.793s (1.793s including waiting). Image size: 2217006 bytes.
+8m30s       Normal    Created                        pod/curl-test                                Container created
+8m30s       Normal    Started                        pod/curl-test                                Container started
+8m6s        Normal    Scheduled                      pod/health-test                              Successfully assigned 115029258-hpa/health-test to 115029258-hpa-worker2
+8m6s        Normal    Pulled                         pod/health-test                              Container image "busybox:1.36" already present on machine and can be accessed by the pod
+8m6s        Normal    Created                        pod/health-test                              Container created
+8m5s        Normal    Started                        pod/health-test                              Container started
+5m29s       Normal    SuccessfulCreate               job/115029258-load                           Created pod: 115029258-load-7zm5f
+5m29s       Normal    Scheduled                      pod/115029258-load-267f4                     Successfully assigned 115029258-hpa/115029258-load-267f4 to 115029258-hpa-worker
+5m29s       Normal    SuccessfulCreate               job/115029258-load                           Created pod: 115029258-load-xknpm
+5m29s       Normal    Scheduled                      pod/115029258-load-7zm5f                     Successfully assigned 115029258-hpa/115029258-load-7zm5f to 115029258-hpa-worker2
+5m29s       Normal    SuccessfulCreate               job/115029258-load                           Created pod: 115029258-load-267f4
+5m29s       Normal    Scheduled                      pod/115029258-load-xknpm                     Successfully assigned 115029258-hpa/115029258-load-xknpm to 115029258-hpa-worker2
+5m28s       Normal    Pulling                        pod/115029258-load-7zm5f                     Pulling image "busybox"
+5m28s       Normal    Pulling                        pod/115029258-load-xknpm                     Pulling image "busybox"
+5m28s       Normal    Pulling                        pod/115029258-load-267f4                     Pulling image "busybox"
+5m26s       Normal    Created                        pod/115029258-load-7zm5f                     Container created
+5m26s       Normal    Pulled                         pod/115029258-load-7zm5f                     Successfully pulled image "busybox" in 377ms (1.964s including waiting). Image size: 2236931 bytes.
+5m26s       Normal    Started                        pod/115029258-load-xknpm                     Container started
+5m26s       Normal    Pulled                         pod/115029258-load-xknpm                     Successfully pulled image "busybox" in 1.626s (1.626s including waiting). Image size: 2236931 bytes.
+5m26s       Normal    Started                        pod/115029258-load-267f4                     Container started
+5m26s       Normal    Created                        pod/115029258-load-267f4                     Container created
+5m26s       Normal    Created                        pod/115029258-load-xknpm                     Container created
+5m26s       Normal    Pulled                         pod/115029258-load-267f4                     Successfully pulled image "busybox" in 1.607s (1.607s including waiting). Image size: 2236931 bytes.
+5m25s       Normal    Started                        pod/115029258-load-7zm5f                     Container started
+4m52s       Normal    SuccessfulCreate               replicaset/115029258-burn-756969954          Created pod: 115029258-burn-756969954-pstqq
+4m52s       Warning   FailedCreate                   replicaset/115029258-burn-756969954          Error creating: pods "115029258-burn-756969954-2jdhw" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+4m52s       Normal    SuccessfulCreate               replicaset/115029258-burn-756969954          Created pod: 115029258-burn-756969954-c2qrr
+4m52s       Normal    ScalingReplicaSet              deployment/115029258-burn                    Scaled up replica set 115029258-burn-756969954 from 1 to 5
+4m52s       Normal    Scheduled                      pod/115029258-burn-756969954-c2qrr           Successfully assigned 115029258-hpa/115029258-burn-756969954-c2qrr to 115029258-hpa-worker
+4m52s       Warning   FailedCreate                   replicaset/115029258-burn-756969954          Error creating: pods "115029258-burn-756969954-ktkpt" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+4m52s       Warning   FailedCreate                   replicaset/115029258-burn-756969954          Error creating: pods "115029258-burn-756969954-nl5bt" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+4m52s       Normal    SuccessfulRescale              horizontalpodautoscaler/115029258-burn-hpa   New size: 5; reason: cpu resource utilization (percentage of request) above target
+4m52s       Normal    Scheduled                      pod/115029258-burn-756969954-pstqq           Successfully assigned 115029258-hpa/115029258-burn-756969954-pstqq to 115029258-hpa-worker2
+4m52s       Warning   FailedCreate                   replicaset/115029258-burn-756969954          Error creating: pods "115029258-burn-756969954-rx92v" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+4m52s       Warning   FailedCreate                   replicaset/115029258-burn-756969954          Error creating: pods "115029258-burn-756969954-zfgqm" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+4m52s       Warning   FailedCreate                   replicaset/115029258-burn-756969954          Error creating: pods "115029258-burn-756969954-9jlnl" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+4m51s       Normal    Created                        pod/115029258-burn-756969954-c2qrr           Container created
+4m51s       Normal    Pulling                        pod/115029258-burn-756969954-pstqq           Pulling image "icstyoningrum/115029258-burn:v1"
+4m51s       Warning   FailedCreate                   replicaset/115029258-burn-756969954          Error creating: pods "115029258-burn-756969954-c2c8b" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+4m51s       Warning   FailedCreate                   replicaset/115029258-burn-756969954          Error creating: pods "115029258-burn-756969954-8bcbk" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+4m51s       Warning   FailedCreate                   replicaset/115029258-burn-756969954          Error creating: pods "115029258-burn-756969954-ccszv" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+4m51s       Normal    Started                        pod/115029258-burn-756969954-c2qrr           Container started
+4m51s       Normal    Pulled                         pod/115029258-burn-756969954-c2qrr           Successfully pulled image "icstyoningrum/115029258-burn:v1" in 424ms (424ms including waiting). Image size: 7942693 bytes.
+4m51s       Normal    Pulling                        pod/115029258-burn-756969954-c2qrr           Pulling image "icstyoningrum/115029258-burn:v1"
+4m49s       Normal    Started                        pod/115029258-burn-756969954-pstqq           Container started
+4m49s       Normal    Created                        pod/115029258-burn-756969954-pstqq           Container created
+4m49s       Normal    Pulled                         pod/115029258-burn-756969954-pstqq           Successfully pulled image "icstyoningrum/115029258-burn:v1" in 1.982s (1.982s including waiting). Image size: 7942693 bytes.
+4m7s        Normal    SuccessfulRescale              horizontalpodautoscaler/115029258-burn-hpa   New size: 9; reason: cpu resource utilization (percentage of request) above target
+4m7s        Normal    ScalingReplicaSet              deployment/115029258-burn                    Scaled up replica set 115029258-burn-756969954 from 5 to 9
+3m52s       Normal    ScalingReplicaSet              deployment/115029258-burn                    Scaled up replica set 115029258-burn-756969954 from 9 to 10
+3m52s       Warning   FailedCreate                   replicaset/115029258-burn-756969954          (combined from similar events): Error creating: pods "115029258-burn-756969954-d6vfp" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+3m52s       Normal    SuccessfulRescale              horizontalpodautoscaler/115029258-burn-hpa   New size: 10; reason: cpu resource utilization (percentage of request) above target
+105s        Normal    Killing                        pod/115029258-load-xknpm                     Stopping container load-generator
+105s        Normal    Killing                        pod/115029258-load-7zm5f                     Stopping container load-generator
+105s        Normal    Killing                        pod/115029258-load-267f4                     Stopping container load-generator

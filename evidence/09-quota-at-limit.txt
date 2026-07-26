@@ -1,0 +1,16 @@
+=== ResourceQuota During Load ===
+Name:         115029258-quota
+Namespace:    115029258-hpa
+Resource      Used  Hard
+--------      ----  ----
+pods          6     6
+requests.cpu  750m  1
+
+=== All Pods During Quota Collision ===
+NAME                             READY   STATUS    RESTARTS   AGE
+115029258-burn-756969954-c2qrr   1/1     Running   0          115s
+115029258-burn-756969954-k7cx4   1/1     Running   0          7m19s
+115029258-burn-756969954-pstqq   1/1     Running   0          115s
+115029258-load-267f4             1/1     Running   0          2m32s
+115029258-load-7zm5f             1/1     Running   0          2m32s
+115029258-load-xknpm             1/1     Running   0          2m32s

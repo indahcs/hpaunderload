@@ -1,0 +1,19 @@
+8m22s       Normal    SuccessfulCreate               replicaset/115029258-burn-756969954          Created pod: 115029258-burn-756969954-k7cx4
+3m35s       Normal    SuccessfulCreate               job/115029258-load                           Created pod: 115029258-load-7zm5f
+3m35s       Normal    SuccessfulCreate               job/115029258-load                           Created pod: 115029258-load-xknpm
+3m35s       Normal    SuccessfulCreate               job/115029258-load                           Created pod: 115029258-load-267f4
+2m58s       Normal    SuccessfulCreate               replicaset/115029258-burn-756969954          Created pod: 115029258-burn-756969954-pstqq
+2m58s       Warning   FailedCreate                   replicaset/115029258-burn-756969954          Error creating: pods "115029258-burn-756969954-9jlnl" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+2m58s       Warning   FailedCreate                   replicaset/115029258-burn-756969954          Error creating: pods "115029258-burn-756969954-ktkpt" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+2m58s       Normal    SuccessfulRescale              horizontalpodautoscaler/115029258-burn-hpa   New size: 5; reason: cpu resource utilization (percentage of request) above target
+2m58s       Normal    SuccessfulCreate               replicaset/115029258-burn-756969954          Created pod: 115029258-burn-756969954-c2qrr
+2m58s       Warning   FailedCreate                   replicaset/115029258-burn-756969954          Error creating: pods "115029258-burn-756969954-nl5bt" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+2m58s       Warning   FailedCreate                   replicaset/115029258-burn-756969954          Error creating: pods "115029258-burn-756969954-rx92v" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+2m58s       Warning   FailedCreate                   replicaset/115029258-burn-756969954          Error creating: pods "115029258-burn-756969954-zfgqm" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+2m58s       Warning   FailedCreate                   replicaset/115029258-burn-756969954          Error creating: pods "115029258-burn-756969954-2jdhw" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+2m57s       Warning   FailedCreate                   replicaset/115029258-burn-756969954          Error creating: pods "115029258-burn-756969954-c2c8b" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+2m57s       Warning   FailedCreate                   replicaset/115029258-burn-756969954          Error creating: pods "115029258-burn-756969954-8bcbk" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+2m57s       Warning   FailedCreate                   replicaset/115029258-burn-756969954          Error creating: pods "115029258-burn-756969954-ccszv" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+2m13s       Normal    SuccessfulRescale              horizontalpodautoscaler/115029258-burn-hpa   New size: 9; reason: cpu resource utilization (percentage of request) above target
+118s        Warning   FailedCreate                   replicaset/115029258-burn-756969954          (combined from similar events): Error creating: pods "115029258-burn-756969954-d6vfp" is forbidden: exceeded quota: 115029258-quota, requested: pods=1, used: pods=6, limited: pods=6
+118s        Normal    SuccessfulRescale              horizontalpodautoscaler/115029258-burn-hpa   New size: 10; reason: cpu resource utilization (percentage of request) above target
