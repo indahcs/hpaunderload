@@ -1,0 +1,7 @@
+=== ResourceQuota Before Load ===
+Name:         115029258-quota
+Namespace:    115029258-hpa
+Resource      Used  Hard
+--------      ----  ----
+pods          1     6
+requests.cpu  200m  1

@@ -1,0 +1,35 @@
+=== Kubernetes Nodes ===
+NAME                          STATUS   ROLES           AGE     VERSION   INTERNAL-IP   EXTERNAL-IP   OS-IMAGE                       KERNEL-VERSION                             CONTAINER-RUNTIME
+115029258-hpa-control-plane   Ready    control-plane   2m24s   v1.36.1   172.19.0.3    <none>        Debian GNU/Linux 13 (trixie)   6.6.87.2-microsoft-standard-WSL2 (amd64)   containerd://2.3.1
+115029258-hpa-worker          Ready    <none>          2m13s   v1.36.1   172.19.0.2    <none>        Debian GNU/Linux 13 (trixie)   6.6.87.2-microsoft-standard-WSL2 (amd64)   containerd://2.3.1
+115029258-hpa-worker2         Ready    <none>          2m13s   v1.36.1   172.19.0.4    <none>        Debian GNU/Linux 13 (trixie)   6.6.87.2-microsoft-standard-WSL2 (amd64)   containerd://2.3.1
+
+=== Metrics APIService ===
+NAME                     SERVICE                      AVAILABLE   AGE
+v1beta1.metrics.k8s.io   kube-system/metrics-server   True        116s
+
+=== Node Metrics ===
+NAME                          CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)   
+115029258-hpa-control-plane   184m         1%       686Mi           4%          
+115029258-hpa-worker          33m          0%       168Mi           1%          
+115029258-hpa-worker2         37m          0%       181Mi           1%          
+
+=== Pod Metrics ===
+NAME                             CPU(cores)   MEMORY(bytes)   
+115029258-burn-756969954-k7cx4   1m           1Mi             
+
+=== Project Resources ===
+NAME                                 READY   STATUS    RESTARTS   AGE
+pod/115029258-burn-756969954-k7cx4   1/1     Running   0          91s
+
+NAME                         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+service/115029258-burn-svc   ClusterIP   10.96.55.176   <none>        80/TCP    91s
+
+NAME                             READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/115029258-burn   1/1     1            1           91s
+
+NAME                                       DESIRED   CURRENT   READY   AGE
+replicaset.apps/115029258-burn-756969954   1         1         1       91s
+
+NAME                                                     REFERENCE                   TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/115029258-burn-hpa   Deployment/115029258-burn   cpu: 0%/50%   1         10        1          82s

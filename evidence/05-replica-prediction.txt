@@ -1,0 +1,28 @@
+HPA Under Load Replica Prediction
+=================================
+
+Namespace ResourceQuota:
+- Pod limit: 6
+- CPU request limit: 1000m
+
+Fixed application configuration:
+- CPU request per application Pod: 200m
+- HPA maximum replicas: 10
+
+Fixed load generator configuration:
+- Load Pods: 3
+- CPU request per load Pod: 50m
+- Total load CPU request: 3 × 50m = 150m
+
+Pod quota calculation:
+6 total Pods - 3 load Pods = 3 application Pods
+
+CPU quota calculation:
+1000m - 150m = 850m remaining
+floor(850m / 200m) = 4 application Pods
+
+HPA limit:
+10 application Pods
+
+Final prediction:
+min(3, 4, 10) = 3 application Pods

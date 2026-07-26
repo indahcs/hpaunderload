@@ -1,0 +1,9 @@
+=== Root Endpoint Test ===
+OK burn 115029258 result=922875 duration=15.688804ms
+
+=== Health Endpoint Test ===
+health check OK
+
+=== Pods After Connectivity Tests ===
+NAME                             READY   STATUS    RESTARTS   AGE
+115029258-burn-756969954-k7cx4   1/1     Running   0          2m35s

@@ -1,0 +1,27 @@
+=== Final Deployment State ===
+NAME             READY   UP-TO-DATE   AVAILABLE   AGE
+115029258-burn   1/1     1            1           11m
+
+=== Final Pod State ===
+NAME                             READY   STATUS    RESTARTS   AGE
+115029258-burn-756969954-pstqq   1/1     Running   0          5m41s
+
+=== Final Pod Metrics ===
+NAME                             CPU(cores)   MEMORY(bytes)   
+115029258-burn-756969954-pstqq   1m           7Mi             
+
+=== Final Namespace Resources ===
+NAME                                 READY   STATUS    RESTARTS   AGE
+pod/115029258-burn-756969954-pstqq   1/1     Running   0          5m41s
+
+NAME                         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
+service/115029258-burn-svc   ClusterIP   10.96.55.176   <none>        80/TCP    11m
+
+NAME                             READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/115029258-burn   1/1     1            1           11m
+
+NAME                                       DESIRED   CURRENT   READY   AGE
+replicaset.apps/115029258-burn-756969954   1         1         1       11m
+
+NAME                                                     REFERENCE                   TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+horizontalpodautoscaler.autoscaling/115029258-burn-hpa   Deployment/115029258-burn   cpu: 0%/50%   1         10        1          10m
