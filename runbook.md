@@ -34,8 +34,6 @@ This runbook covers the complete lifecycle of the project, including:
 - cleanup; and
 - troubleshooting.
 
-The instructions assume that the repository has already been cloned to the local machine.
-
 ---
 
 # 3. Environment
@@ -58,9 +56,27 @@ The commands shown in this runbook were tested using Git Bash on Windows 11. Equ
 
 ---
 
-# 4. Repository Layout
+# 4. Clone the Repository
 
-The runbook assumes the following repository structure.
+Clone the project repository:
+
+```bash
+git clone https://github.com/indahcs/hpaunderload.git
+```
+
+Move into the repository root:
+
+```bash
+cd hpaunderload
+```
+
+All remaining commands in this runbook should be executed from this directory unless otherwise specified.
+
+---
+
+# 5. Repository Layout
+
+The repository should have the following structure.
 
 ```text
 hpaunderload/
@@ -79,7 +95,7 @@ The commands shown throughout this runbook should be executed from the repositor
 
 ---
 
-# 5. Prerequisites
+# 6. Prerequisites
 
 Before beginning, verify that the required software is installed.
 
@@ -101,84 +117,7 @@ If Docker is not running, start Docker Desktop before continuing.
 
 ---
 
-# 6. Required Project Files
-
-Verify that all required project files exist.
-
-```bash
-ls
-```
-
-The repository should contain at least the following files.
-
-```text
-bootstrap.sh
-apply-quota.sh
-kind-config.yaml
-README.md
-runbook.md
-```
-
-Verify the Kubernetes manifests.
-
-```bash
-ls manifests
-```
-
-Expected files:
-
-```text
-00-namespace.yaml
-01-deployment.yaml
-02-service.yaml
-03-hpa.yaml
-load-job.yaml
-metrics-server.yaml
-quota.yaml
-```
-
-Verify the application source code.
-
-```bash
-ls app
-```
-
-Expected files:
-
-```text
-Dockerfile
-go.mod
-main.go
-```
-
-If all required files are present, continue to the deployment process.
-
----
-
-# 7. Before Deployment
-
-The project is designed to create a completely fresh Kubernetes environment for every demonstration.
-
-The bootstrap script automatically performs the following tasks:
-
-1. Deletes any existing kind cluster with the same name.
-2. Creates a new three-node Kubernetes cluster.
-3. Waits until all nodes become Ready.
-4. Installs Metrics Server.
-5. Creates the project namespace.
-6. Deploys the Go application.
-7. Creates the ClusterIP Service.
-8. Configures the Horizontal Pod Autoscaler.
-9. Applies the default ResourceQuota.
-10. Waits until Metrics Server begins reporting Pod metrics.
-
-No manual cluster preparation is required before running the bootstrap script.
-
-The next section demonstrates how to create the environment from scratch.
-
----
-
-# 8. Bootstrap the Environment
+# 7. Bootstrap the Environment
 
 ## Purpose
 
@@ -196,7 +135,7 @@ time ./bootstrap.sh
 
 ## Expected Result
 
-The bootstrap script performs the following tasks automatically.
+The bootstrap script automatically performs the following actions:
 
 1. Deletes any existing kind cluster.
 2. Creates a new three-node Kubernetes cluster.
@@ -210,7 +149,7 @@ The bootstrap script performs the following tasks automatically.
 10. Waits until Metrics Server begins reporting Pod metrics.
 11. Displays the final cluster status.
 
-At the end of execution, the script should display:
+At the end of execution, the following message should be displayed:
 
 ```text
 HPA under load project bootstrapped successfully
@@ -227,7 +166,7 @@ Confirm that the bootstrap script completed without errors before continuing. If
 
 ---
 
-# 9. Verify Cluster Health
+# 8. Verify Cluster Health
 
 ## Purpose
 
@@ -246,18 +185,15 @@ The cluster should contain three nodes.
 - One control-plane node
 - Two worker nodes
 
-All nodes should report:
+All three nodes should report a `Ready` status.
+
+Example (output abbreviated):
 
 ```text
-STATUS = Ready
-```
-
-Example:
-
-```text
-115029258-hpa-control-plane   Ready
-115029258-hpa-worker          Ready
-115029258-hpa-worker2         Ready
+NAME                          STATUS   ROLES           VERSION
+115029258-hpa-control-plane   Ready    control-plane   v1.36.1
+115029258-hpa-worker          Ready    <none>          v1.36.1
+115029258-hpa-worker2         Ready    <none>          v1.36.1
 ```
 
 ## Verification
@@ -266,7 +202,7 @@ If all nodes are in the `Ready` state, the cluster is ready for application depl
 
 ---
 
-# 10. Verify Metrics Server
+# 9. Verify Metrics Server
 
 ## Purpose
 
@@ -274,7 +210,7 @@ Confirm that Metrics Server is running correctly and that the Kubernetes Metrics
 
 Metrics Server is required because the Horizontal Pod Autoscaler uses CPU metrics to calculate the desired number of replicas.
 
-## Step 1 — Verify the Metrics API
+## Step 1. Verify the Metrics API
 
 Run:
 
@@ -288,7 +224,7 @@ Expected result:
 AVAILABLE=True
 ```
 
-## Step 2 — Verify node metrics
+## Step 2. Verify node metrics
 
 Run:
 
@@ -296,20 +232,18 @@ Run:
 kubectl top nodes
 ```
 
-Expected result:
-
 CPU and memory usage should be displayed for all three nodes.
 
-Example:
+Example (output abbreviated):
 
 ```text
-NAME                          CPU(cores)   MEMORY(bytes)
-115029258-hpa-control-plane
-115029258-hpa-worker
-115029258-hpa-worker2
+NAME                          CPU(cores)   CPU(%)   MEMORY(bytes)   MEMORY(%)
+115029258-hpa-control-plane   283m         1%       591Mi           3%
+115029258-hpa-worker          57m          0%       167Mi           1%
+115029258-hpa-worker2         49m          0%       145Mi           0%
 ```
 
-## Step 3 — Verify Pod metrics
+## Step 3. Verify Pod metrics
 
 Run:
 
@@ -324,9 +258,8 @@ One application Pod should appear together with its current CPU and memory usage
 Example:
 
 ```text
-115029258-burn-xxxxx
-CPU: 6m
-MEMORY: 2Mi
+NAME                             CPU(cores)   MEMORY(bytes)
+115029258-burn-xxxxx   1m           2Mi
 ```
 
 ## Verification
@@ -341,13 +274,13 @@ If CPU usage appears as `<unknown>`, wait a few moments and run the commands aga
 
 ---
 
-# 11. Verify the Application Deployment
+# 10. Verify the Application Deployment
 
 ## Purpose
 
 Confirm that the application has been deployed successfully before generating CPU load.
 
-## Display all project resources
+## Verify all project resources
 
 Run:
 
@@ -365,7 +298,7 @@ The namespace should contain:
 - one ClusterIP Service; and
 - one Horizontal Pod Autoscaler.
 
-Example output:
+Example (output abbreviated):
 
 ```text
 NAME                                 READY   STATUS    RESTARTS   AGE
@@ -384,8 +317,6 @@ NAME                                                     TARGETS
 horizontalpodautoscaler.autoscaling/115029258-burn-hpa   cpu: 6%/50%
 ```
 
----
-
 ## Verification
 
 Confirm that:
@@ -399,7 +330,7 @@ If any resource is missing or reports an error state, resolve the issue before c
 
 ---
 
-# 12. Verify Service Connectivity
+# 11. Verify Service Connectivity
 
 ## Purpose
 
@@ -407,21 +338,35 @@ Verify that the application can be reached through the ClusterIP Service.
 
 This confirms that Kubernetes networking is functioning correctly before the load test begins.
 
----
+> **ResourceQuota note:** The bootstrap script applies a namespace `requests.cpu` quota before this test. Kubernetes therefore requires every new container in the namespace to declare a CPU request. Each temporary BusyBox Pod requests `10m` CPU so that it can pass quota admission. The Pod is deleted immediately after the test and does not affect the later autoscaling calculation.
 
-## Step 1 — Test the application endpoint
+## Step 1. Test the application endpoint
 
-Create a temporary BusyBox Pod.
+Create a temporary BusyBox Pod with a CPU request.
 
 ```bash
-kubectl run curl-test \
-  --restart=Never \
-  --image=busybox:1.36 \
-  -n 115029258-hpa \
-  -- wget -qO- http://115029258-burn-svc
+cat <<'EOF' | kubectl apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: curl-test
+  namespace: 115029258-hpa
+spec:
+  restartPolicy: Never
+  containers:
+    - name: curl-test
+      image: busybox:1.36
+      command:
+        - wget
+        - -qO-
+        - http://115029258-burn-svc
+      resources:
+        requests:
+          cpu: 10m
+EOF
 ```
 
-Wait until the Pod finishes.
+Wait until the Pod completes.
 
 ```bash
 kubectl wait \
@@ -431,7 +376,7 @@ kubectl wait \
   --timeout=60s
 ```
 
-Retrieve the response.
+Verify the response.
 
 ```bash
 kubectl logs curl-test -n 115029258-hpa
@@ -449,20 +394,33 @@ Delete the temporary Pod.
 kubectl delete pod curl-test -n 115029258-hpa
 ```
 
----
+## Step 2. Verify the health endpoint
 
-## Step 2 — Verify the health endpoint
-
-Create another temporary BusyBox Pod.
+Create a temporary BusyBox Pod with a CPU request.
 
 ```bash
-kubectl run health-test \
-  --restart=Never \
-  --image=busybox:1.36 \
-  -n 115029258-hpa \
-  -- wget -qO- http://115029258-burn-svc/health
+cat <<'EOF' | kubectl apply -f -
+apiVersion: v1
+kind: Pod
+metadata:
+  name: health-test
+  namespace: 115029258-hpa
+spec:
+  restartPolicy: Never
+  containers:
+    - name: health-test
+      image: busybox:1.36
+      command:
+        - wget
+        - -qO-
+        - http://115029258-burn-svc/health
+      resources:
+        requests:
+          cpu: 10m
+EOF
 ```
-Wait until the Pod finishes.
+
+Wait until the Pod completes.
 
 ```bash
 kubectl wait \
@@ -472,7 +430,7 @@ kubectl wait \
   --timeout=60s
 ```
 
-Retrieve the response.
+Verify the response.
 
 ```bash
 kubectl logs health-test -n 115029258-hpa
@@ -490,20 +448,30 @@ Delete the temporary Pod.
 kubectl delete pod health-test -n 115029258-hpa
 ```
 
----
+> Confirm that both temporary test Pods have been deleted before applying a custom quota or starting the load test.
+
+```bash
+kubectl get pods -n 115029258-hpa
+```
+
+Expected result:
+
+- Only the Go burn application Pod remains.
+- Neither `curl-test` nor `health-test` appears in the namespace.
 
 ## Verification
 
 Service connectivity is verified when:
 
-- the root endpoint returns the expected application response; and
-- the `/health` endpoint returns `health check OK`.
+- the root endpoint returns the expected application response;
+- the `/health` endpoint returns `health check OK`; and
+- both temporary test Pods are deleted successfully.
 
-The environment is now ready for the Horizontal Pod Autoscaler demonstration.
+The application and Service are now verified. Continue by applying the selected ResourceQuota and calculating the expected maximum number of application replicas.
 
 ---
 
-# 13. Apply a Custom ResourceQuota
+# 12. Apply a Custom ResourceQuota
 
 The quota helper accepts a Pod limit, a CPU-request limit, or both values.
 
@@ -525,18 +493,9 @@ Apply both limits explicitly:
 ./apply-quota.sh 8 1200m
 ```
 
-Verify the applied quota:
-
-```bash
-kubectl describe quota 115029258-quota \
-  -n 115029258-hpa
-```
-
-Before starting the load test, calculate the expected maximum application replicas using the quota values selected for that run.
-
 ---
 
-# 14. Verify the ResourceQuota
+# 13. Verify the ResourceQuota
 
 ## Purpose
 
@@ -544,15 +503,11 @@ Review the namespace ResourceQuota before starting the load test.
 
 Understanding the configured limits makes it possible to predict how many application Pods can be created during autoscaling.
 
----
-
 ## Command
 
 ```bash
 kubectl describe quota 115029258-quota -n 115029258-hpa
 ```
-
----
 
 ## Expected Result
 
@@ -569,13 +524,12 @@ Example:
 Resource      Used   Hard
 pods          1      6
 requests.cpu  200m   1
+requests.cpu  200m   1
 ```
 
 Kubernetes may display the hard CPU-request limit as `1` instead of `1000m`; both values represent one CPU core.
 
 At this stage only the application Pod is running, so only a small portion of the quota has been consumed.
-
----
 
 ## Verification
 
@@ -588,38 +542,30 @@ The ResourceQuota is now ready for the load test.
 
 ---
 
-# 15. Predict the Maximum Number of Application Pods
+# 14. Predict the Maximum Number of Application Pods
 
 ## Purpose
 
 Estimate how many application Pods can run before the ResourceQuota prevents additional Pods from being created. This prediction will later be compared with the actual Kubernetes behavior.
 
----
-
 ## Current Configuration
 
 ### Namespace ResourceQuota
 
-| Resource | Value |
-|----------|------:|
-| Pods | 6 |
-| CPU Requests | 1000m |
+| **Namespace ResourceQuota (Variable)** | Value |
+| -------------------------------------- | ----: |
+| Pods                                   |     6 |
+| CPU Requests                           | 1000m |
 
-### Application
+| **Application Configuration (Fixed)** | Value |
+| ------------------------------------- | ----: |
+| CPU Request                           |  200m |
+| CPU Limit                             |  500m |
 
-| Resource | Value |
-|----------|------:|
-| CPU Request | 200m |
-| CPU Limit | 500m |
-
-### Load Generator
-
-| Resource | Value |
-|----------|------:|
-| Load Pods | 3 |
-| CPU Request per Pod | 50m |
-
----
+| **Load Generator Configuration (Fixed)** | Value |
+| ---------------------------------------- | ----: |
+| Load Pods                                |     3 |
+| CPU Request per Pod                      |   50m |
 
 ## Pod Calculation
 
@@ -640,8 +586,6 @@ Remaining Pod capacity:
 ```text
 6 - 3 = 3 application Pods
 ```
-
----
 
 ## CPU Request Calculation
 
@@ -675,8 +619,6 @@ Maximum application Pods allowed by CPU:
 850m ÷ 200m = 4 Pods
 ```
 
----
-
 ## Final Prediction
 
 Three different limits exist.
@@ -700,15 +642,13 @@ The expected outcome is:
 
 ---
 
-# 16. Prepare the Monitoring Windows
+# 15. Prepare the Monitoring Windows
 
 ## Purpose
 
 Open monitoring commands before generating load.
 
 This allows scaling events to be observed in real time.
-
----
 
 ### Terminal 1 – Monitor the HPA
 
@@ -720,8 +660,6 @@ Observe:
 
 - TARGETS
 - REPLICAS
-
----
 
 ### Terminal 2 - Monitor the Pods.
 
@@ -735,15 +673,15 @@ Observe:
 - Pod status
 - Pod termination
 
----
+### Terminal 3 — Monitor Pod CPU Usage
 
-### Terminal 3 - Monitor resource usage.
+`kubectl top` does not support continuous watch mode. On Linux, the `watch` utility can repeatedly execute the command.
 
 ```bash
 watch kubectl top pods -n 115029258-hpa
 ```
 
-If the `watch` command is unavailable (Windows Git Bash), use:
+On Windows Git Bash, the `watch` utility is typically unavailable. Use the following loop instead:
 
 ```bash
 while true
@@ -755,12 +693,12 @@ do
 done
 ```
 
+Press **Ctrl+C** to stop monitoring.
+
 Observe:
 
 - CPU usage
 - Memory usage
-
----
 
 ## Verification
 
@@ -772,21 +710,17 @@ Before continuing:
 
 ---
 
-# 17. Start the Load Test
+# 16. Start the Load Test
 
 ## Purpose
 
 Generate CPU load so the Horizontal Pod Autoscaler can begin scaling the Deployment.
-
----
 
 ## Command
 
 ```bash
 kubectl apply -f manifests/load-job.yaml
 ```
-
----
 
 ## Verify the Job
 
@@ -801,20 +735,18 @@ NAME             STATUS    COMPLETIONS   DURATION   AGE
 115029258-load   Running   0/3           30s        30s
 ```
 
+Verify that the load Pods have started successfully:
 Depending on the Kubernetes version, the output may omit the `STATUS` column. The important result is that the Job has not completed and its three Pods remain active.
 
-Verify that the load Pods have started successfully:
-
 ```bash
-kubectl get pods \
-  -n 115029258-hpa \
-  -l app=115029258-load
+kubectl get pods -n 115029258-hpa -l app=115029258-load
 ```
 
 ### Expected Result
 
 - Three BusyBox load Pods
 - All load Pods in the `Running` state
+
 
 Example output:
 
@@ -845,8 +777,6 @@ NAME                             READY   STATUS    RESTARTS   AGE
 
 The exact Pod names and ages will vary between runs.
 
----
-
 ## Observe HPA Scaling
 
 Terminal 1 should begin displaying changes similar to:
@@ -870,8 +800,6 @@ NAME                 REFERENCE                   TARGETS     MINPODS   MAXPODS  
 
 The HPA increases the desired number of replicas because average CPU utilization exceeds the configured 50% target.
 
----
-
 ## Observe Resource Usage
 
 Terminal 2 should display new application Pods entering the Running state.
@@ -879,22 +807,16 @@ Terminal 2 should display new application Pods entering the Running state.
 Example:
 
 ```text
-115029258-burn-xxxxx
-
-Running
+115029258-burn-xxxxx    Running
 ```
 
 The number of Running Pods will stop increasing after three application Pods have been created.
-
----
 
 ## Observe CPU Usage
 
 Terminal 3 should display increased CPU utilization while the load generator is running.
 
 Higher CPU utilization confirms that the BusyBox Job is successfully generating workload for the application.
-
----
 
 ## Verification
 
@@ -906,23 +828,19 @@ The load test is successful when:
 
 ---
 
-# 18. Verify Horizontal Pod Autoscaler Behavior
+# 17. Verify Horizontal Pod Autoscaler Behavior
 
 ## Purpose
 
 Verify that the Horizontal Pod Autoscaler responds correctly to increased CPU utilization by increasing the Deployment's desired replica count.
 
----
-
-## Display HPA Details
+## Verify HPA Details
 
 Run:
 
 ```bash
 kubectl describe hpa 115029258-burn-hpa -n 115029258-hpa
 ```
-
----
 
 ## Expected Result
 
@@ -931,9 +849,8 @@ During the load test, CPU utilization should exceed the configured target.
 Example:
 
 ```text
-Metrics:
-resource cpu on pods
-199% (399m) / 50%
+Metrics:                                               ( current / target )
+  resource cpu on pods  (as a percentage of request):  ... / 50%
 ```
 
 The HPA should increase the desired number of replicas.
@@ -941,46 +858,44 @@ The HPA should increase the desired number of replicas.
 Example:
 
 ```text
-Deployment pods:
-10 current / 10 desired
+Deployment pods:       10 current / 10 desired
 ```
 
-The Events section should contain messages similar to:
+The **Events** section should contain entries similar to the following:
 
 ```text
-SuccessfulRescale
-New size: 5
-
-SuccessfulRescale
-New size: 10
+Events:
+  Type    Reason             Age    From                       Message
+  ----    ------             ----   ----                       -------
+  Normal  SuccessfulRescale  ...    horizontal-pod-autoscaler  New size: 5; reason: cpu resource utilization (percentage of request) above target
+  Normal  SuccessfulRescale  ...    horizontal-pod-autoscaler  New size: 10; reason: cpu resource utilization (percentage of request) above target
 ```
 
----
+The exact timestamps and replica counts may differ depending on the ResourceQuota values used during the demonstration.
 
 ## Review HPA Conditions
 
-The `kubectl describe hpa` output also includes the current HPA conditions.
+The **Conditions** section shows the current state of the Horizontal Pod Autoscaler and confirms whether it is functioning correctly.
 
 Example:
 
 ```text
 Conditions:
-Type             Status   Reason
+  Type            Status  Reason            Message
+  ----            ------  ------            -------
+  AbleToScale     True    ReadyForNewScale  recommended size matches current size
+  ScalingActive   True    ValidMetricFound  the HPA was able to successfully calculate a replica count from cpu resource utilization (percentage of request)
+  ScalingLimited  True    TooManyReplicas   the desired replica count is more than the maximum replica count
 
-AbleToScale      True     ReadyForNewScale
-ScalingActive    True     ValidMetricFound
-ScalingLimited   True     TooManyReplicas
 ```
 
 Typical meanings:
 
-- **AbleToScale=True** indicates that the HPA can communicate with and update the target Deployment.
-- **ScalingActive=True** indicates that valid CPU metrics are available for calculating replica recommendations.
-- **ScalingLimited=True** with the reason `TooManyReplicas` indicates that the calculated recommendation exceeded the configured `maxReplicas` value.
+- **AbleToScale = True** indicates that the HPA can communicate with and update the target Deployment.
+- **ScalingActive = True** indicates that valid CPU metrics are available for calculating the desired replica count.
+- **ScalingLimited = True** with the reason `TooManyReplicas` indicates that the calculated replica count exceeded the configured `maxReplicas` value.
 
-> **Note:** `ScalingLimited=True` only indicates that the HPA recommendation exceeded the configured maximum replica count. ResourceQuota enforcement is verified separately using ReplicaSet `FailedCreate` events.
-
----
+> **Note:** `ScalingLimited=True` indicates that the HPA cannot increase the desired replica count any further because it has reached the configured `maxReplicas` value. Separately, the namespace `ResourceQuota` may still prevent the ReplicaSet from creating all requested Pods. These are two different mechanisms that can occur at the same time during this demonstration.
 
 ## Verification
 
@@ -994,15 +909,13 @@ The HPA is now functioning as expected.
 
 ---
 
-# 19. Verify ReplicaSet Behavior
+# 18. Verify ReplicaSet Behavior
 
 ## Purpose
 
 Verify that the ReplicaSet attempts to create the Pods requested by the Horizontal Pod Autoscaler.
 
----
-
-## Display ReplicaSets
+## Verify ReplicaSets
 
 ```bash
 kubectl get rs -n 115029258-hpa
@@ -1011,21 +924,15 @@ kubectl get rs -n 115029258-hpa
 Expected Result:
 
 ```text
-NAME        115029258-burn-xxxxxxxx
-DESIRED     10
-CURRENT     3
-READY       3
+NAME                       DESIRED   CURRENT   READY   AGE
+115029258-burn-xxxxx       10        3         3       108m
 ```
-
----
 
 ## Describe the ReplicaSet
 
 ```bash
 kubectl describe rs -n 115029258-hpa
 ```
-
----
 
 ## Expected Result
 
@@ -1038,7 +945,9 @@ Replicas:   3 current / 10 desired
 Condition:
 
 ```text
-ReplicaFailure=True
+  Type             Status  Reason
+  ----             ------  ------
+  ReplicaFailure   True    FailedCreate
 ```
 
 Events similar to:
@@ -1048,8 +957,6 @@ FailedCreate
 pods "... " is forbidden:
 exceeded quota
 ```
-
----
 
 ## Verification
 
@@ -1063,21 +970,17 @@ This confirms that the ReplicaSet—not the HPA—is responsible for creating Po
 
 ---
 
-# 20. Verify ResourceQuota Enforcement
+# 19. Verify ResourceQuota Enforcement
 
 ## Purpose
 
 Confirm that the namespace ResourceQuota is preventing additional Pods from being created.
-
----
 
 ## Command
 
 ```bash
 kubectl describe quota 115029258-quota -n 115029258-hpa
 ```
-
----
 
 ## Expected Result
 
@@ -1094,8 +997,6 @@ The namespace has reached the configured Pod limit.
 
 Although additional CPU requests are still available, Kubernetes cannot create more Pods because the Pod quota has already been exhausted.
 
----
-
 ## Verification
 
 Confirm that:
@@ -1108,14 +1009,12 @@ The observed behavior should match the prediction made before the load test.
 
 ---
 
-# 21. Review the Namespace Event Timeline
+# 20. Review the Namespace Event Timeline
 
 Display namespace events in chronological order:
 
 ```bash
-kubectl get events \
-  -n 115029258-hpa \
-  --sort-by=.lastTimestamp
+kubectl get events -n 115029258-hpa --sort-by=.lastTimestamp
 ```
 
 The event timeline should show the main lifecycle of the load test:
@@ -1131,13 +1030,11 @@ The exact timestamps, repeated events, and number of `FailedCreate` messages may
 
 ---
 
-# 22. Verify Scaling Prediction
+# 21. Verify Scaling Prediction
 
 ## Purpose
 
 Compare the observed results with the calculated prediction.
-
----
 
 ## Predicted Result
 
@@ -1146,8 +1043,6 @@ Before starting the load test, the expected maximum number of application Pods w
 ```text
 min(3, 4, 10) = 3 application Pods
 ```
-
----
 
 ## Observed Result
 
@@ -1168,8 +1063,6 @@ Total:
 6 Pods
 ```
 
----
-
 ## Verification
 
 The observed result should match the earlier prediction.
@@ -1183,21 +1076,17 @@ This confirms that:
 
 ---
 
-# 23. Stop the Load Test
+# 22. Stop the Load Test
 
 ## Purpose
 
 Remove the CPU workload and observe the Horizontal Pod Autoscaler returning the Deployment toward its minimum replica count.
-
----
 
 ## Delete the Load Job
 
 ```bash
 kubectl delete job 115029258-load -n 115029258-hpa
 ```
-
----
 
 ## Verify Job Removal
 
@@ -1211,8 +1100,6 @@ Expected Result:
 No resources found in 115029258-hpa namespace.
 ```
 
----
-
 ## Observe CPU Usage
 
 Continue observing the following command:
@@ -1222,8 +1109,6 @@ kubectl top pods -n 115029258-hpa
 ```
 
 CPU utilization should gradually decrease.
-
----
 
 ## Observe HPA Scale-down
 
@@ -1247,25 +1132,33 @@ Example progression:
 
 The reduction may not happen immediately because the HPA respects the configured scale-down stabilization window. The final state should return to `minReplicas: 1`.
 
-### Describe the HPA during scale-down.
+### Review HPA during Scale-Down
+
+Display the HPA after the load Job has been deleted and CPU utilization has decreased.
 
 ```bash
-kubectl describe hpa 115029258-burn-hpa \
-  -n 115029258-hpa
+kubectl describe hpa 115029258-burn-hpa -n 115029258-hpa
 ```
 
-During the scale-down period, the HPA may report:
+The `Conditions` section should contain entries similar to the following:
 
 ```text
 Conditions:
-Type             Status   Reason
-
-AbleToScale      True     ScaleDownStabilized
+  Type            Status  Reason               Message
+  ----            ------  ------               -------
+  AbleToScale     True    ScaleDownStabilized  recent recommendations were higher than current one, applying the highest recent recommendation
+  ScalingActive   True    ValidMetricFound     the HPA successfully calculated the desired replica count from CPU utilization
+  ScalingLimited  False   DesiredWithinRange   the desired replica count is within the acceptable range
 ```
 
-`ScaleDownStabilized` indicates that the HPA is temporarily maintaining a recent higher replica recommendation instead of immediately reducing the Deployment to its minimum replica count. This stabilization window helps prevent rapid scaling fluctuations when CPU utilization changes.
+During scale-down:
 
----
+- **AbleToScale = True** confirms that the HPA is allowed to update the Deployment.
+- **ScaleDownStabilized** indicates that the HPA temporarily keeps a higher replica recommendation before reducing the number of Pods. This stabilization window helps prevent rapid scaling fluctuations if CPU usage briefly increases again.
+- **ScalingActive = True** confirms that Metrics Server is still providing valid CPU metrics.
+- **ScalingLimited = False** indicates that the desired replica count is now within the configured range, so the HPA is no longer constrained by its scaling limits.
+
+The exact timestamps and messages may differ between demonstrations, but the HPA should eventually reduce the Deployment back toward its minimum replica count after CPU utilization remains below the target.
 
 ## Verification
 
@@ -1275,15 +1168,13 @@ The HPA should gradually reduce the Deployment toward its minimum replica count.
 
 ---
 
-# 24. Verify Final Cluster State
+# 23. Verify Final Cluster State
 
 ## Purpose
 
 Confirm that the cluster has returned to a stable state after the load test.
 
----
-
-## Display Project Resources
+## Verify Project Resources
 
 ```bash
 kubectl get all -n 115029258-hpa
@@ -1299,8 +1190,6 @@ Expected Result:
 
 No BusyBox load Pods should remain.
 
----
-
 ## Verify HPA
 
 ```bash
@@ -1310,11 +1199,9 @@ kubectl get hpa -n 115029258-hpa
 Expected Result:
 
 ```text
-TARGETS     below 50%
-REPLICAS    1
+NAME                 REFERENCE                   TARGETS       MINPODS   MAXPODS   REPLICAS   AGE
+115029258-burn-hpa   Deployment/115029258-burn   cpu: 0%/50%   1         10        1          ---
 ```
-
----
 
 ## Verification
 
@@ -1326,15 +1213,13 @@ The demonstration is complete when:
 
 ---
 
-# 25. Cleanup
+# 24. Cleanup
 
 ## Purpose
 
 Remove the project resources after the demonstration has been completed.
 
 Cleaning up the environment ensures that the next deployment starts from a clean state and prevents leftover resources from affecting future demonstrations.
-
----
 
 ## Delete the Load Job
 
@@ -1352,8 +1237,6 @@ Error from server (NotFound)
 
 This message is expected and can be ignored.
 
----
-
 ## Delete the kind Cluster
 
 Delete the entire Kubernetes cluster.
@@ -1361,8 +1244,6 @@ Delete the entire Kubernetes cluster.
 ```bash
 kind delete cluster --name 115029258-hpa
 ```
-
----
 
 ## Verify Cleanup
 
@@ -1382,7 +1263,7 @@ The local Kubernetes environment has now been removed successfully.
 
 ---
 
-# 26. Troubleshooting
+# 25. Troubleshooting
 
 The following table lists common issues that may occur during deployment or demonstration.
 
@@ -1397,9 +1278,19 @@ The following table lists common issues that may occur during deployment or demo
 | ReplicaSet reports `FailedCreate` | Namespace ResourceQuota has been exceeded | This behavior is expected during the demonstration. Verify the ResourceQuota using `kubectl describe quota`. |
 | Bootstrap script stops unexpectedly | Missing tools or project files | Verify all prerequisites and rerun `bootstrap.sh`. |
 
+### Run the bootstrap script in debug mode
+
+If the bootstrap script stops unexpectedly and the normal output does not show enough detail, rerun it with Bash command tracing enabled:
+
+```bash
+bash -x bootstrap.sh
+```
+
+This prints each command before it runs and is useful for troubleshooting. The output is intentionally verbose and should not be used for the normal demonstration.
+
 ---
 
-# 27. Demonstration Verification Checklist
+# 26. Demonstration Verification Checklist
 
 The project demonstration is considered successful when all of the following conditions have been verified.
 
@@ -1408,8 +1299,6 @@ The project demonstration is considered successful when all of the following con
 - [ ] Bootstrap script completes successfully.
 - [ ] Three Kubernetes nodes report `Ready`.
 - [ ] Metrics Server reports `AVAILABLE=True`.
-
----
 
 ## Application
 
@@ -1420,16 +1309,12 @@ The project demonstration is considered successful when all of the following con
 - [ ] Application responds through the Service.
 - [ ] Health endpoint responds successfully.
 
----
-
 ## Horizontal Pod Autoscaler
 
 - [ ] HPA created successfully.
 - [ ] CPU utilization exceeds the configured target.
 - [ ] HPA increases the desired replica count.
 - [ ] Deployment reflects the updated replica count.
-
----
 
 ## ResourceQuota
 
@@ -1438,8 +1323,6 @@ The project demonstration is considered successful when all of the following con
 - [ ] ReplicaSet reports `FailedCreate` events.
 - [ ] Pod creation stops after the namespace reaches its configured Pod limit.
 - [ ] Observed behavior matches the predicted maximum number of application Pods.
-
----
 
 ## Scale-down
 
@@ -1450,7 +1333,7 @@ The project demonstration is considered successful when all of the following con
 
 ---
 
-# 28. Summary
+# 27. Summary
 
 This runbook provides the complete procedure required to deploy, verify, demonstrate, and remove the HPA Under Load project.
 
@@ -1464,8 +1347,6 @@ The project demonstrates how Kubernetes controllers work together during autosca
 - a BusyBox Job for generating CPU load.
 
 Following this runbook recreates the same environment and demonstration in a repeatable and consistent manner.
-
----
 
 ## Additional Notes
 

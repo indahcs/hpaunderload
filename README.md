@@ -5,6 +5,7 @@
 A demonstration project showing how Kubernetes Horizontal Pod Autoscaler (HPA) responds to CPU load while operating under namespace ResourceQuota constraints.
 
 **Course:** CLO835 – Portable Technologies in Cloud
+**Course:** CLO835 – Portable Technologies in Cloud
 
 **Project:** Final Project - Summer 2026
 
@@ -28,7 +29,6 @@ A demonstration project showing how Kubernetes Horizontal Pod Autoscaler (HPA) r
 - [Implementation Highlights](#implementation-highlights)
 - [Design Decisions](#design-decisions)
 - [Known Limitations](#known-limitations)
-- [Key Learning Outcomes](#key-learning-outcomes)
 - [Project Demonstration](#project-demonstration)
 - [References](#references)
 
@@ -69,14 +69,23 @@ The project consists of two independent workflows:
 2. **Autoscaling workflow**, where Kubernetes monitors CPU utilization and automatically adjusts the number of application Pods.
 
 The following diagram illustrates how the major Kubernetes components interact during the demonstration.
+The project consists of two independent workflows:
+
+1. **Application traffic flow**, where the BusyBox load generator sends HTTP requests to the Go application through a ClusterIP Service.
+2. **Autoscaling workflow**, where Kubernetes monitors CPU utilization and automatically adjusts the number of application Pods.
+
+The following diagram illustrates how the major Kubernetes components interact during the demonstration.
 
 ```text
-Application Traffic
+                    Application Traffic
 ────────────────────────────────────────────────────────────────────
 
                     +----------------------+
                     |   BusyBox Load Job   |
                     +----------+-----------+
+                                |
+                                | HTTP requests
+                                v
                                 |
                                 | HTTP requests
                                 v
@@ -86,18 +95,24 @@ Application Traffic
                                 |
                                 |
                                 v
+                                |
+                                |
+                                v
                     +----------------------+
                     | Go CPU Burn          |
                     | Application          |
                     | (Deployment → Pods)  |
                     +----------------------+
 
-Autoscaling Workflow
+                    Autoscaling Workflow
 ────────────────────────────────────────────────────────────────────
 
                     +----------------------+
                     | Go CPU Burn Pods     |
                     +----------+-----------+
+                                |
+                                | CPU utilization
+                                v
                                 |
                                 | CPU utilization
                                 v
@@ -107,10 +122,17 @@ Autoscaling Workflow
                                 |
                                 | Resource metrics
                                 v
+                                |
+                                | Resource metrics
+                                v
                     +----------------------+
                     | Horizontal Pod       |
                     | Autoscaler (HPA)     |
+                    | Autoscaler (HPA)     |
                     +----------+-----------+
+                                |
+                                | Desired replicas
+                                v
                                 |
                                 | Desired replicas
                                 v
@@ -126,16 +148,32 @@ Autoscaling Workflow
                                 |
                                 | Admission control
                                 v
+                                |
+                                | Creates / removes Pods
+                                v
                     +----------------------+
+                    |      ReplicaSet      |
+                    +----------+-----------+
+                                |
+                                | Admission control
+                                v
+                    +----------------------+
+                    |    ResourceQuota     |
                     |    ResourceQuota     |
                     +----------+-----------+
                                 |
                                 | Allowed Pods
                                 v
+                                |
+                                | Allowed Pods
+                                v
                     +----------------------+
+                    | Go CPU Burn Pods     |
                     | Go CPU Burn Pods     |
                     +----------------------+
 ```
+
+During the demonstration, the BusyBox Job continuously generates HTTP requests to the Go application. As CPU utilization increases, Metrics Server collects resource metrics and makes them available to the Horizontal Pod Autoscaler (HPA). The HPA calculates the required number of replicas and updates the Deployment. The Deployment instructs the ReplicaSet to create additional Pods, while the namespace ResourceQuota determines whether those Pods can actually be admitted. In this project, the HPA requests up to ten replicas, but the configured ResourceQuota limits the number of application Pods that can run simultaneously.
 
 During the demonstration, the BusyBox Job continuously generates HTTP requests to the Go application. As CPU utilization increases, Metrics Server collects resource metrics and makes them available to the Horizontal Pod Autoscaler (HPA). The HPA calculates the required number of replicas and updates the Deployment. The Deployment instructs the ReplicaSet to create additional Pods, while the namespace ResourceQuota determines whether those Pods can actually be admitted. In this project, the HPA requests up to ten replicas, but the configured ResourceQuota limits the number of application Pods that can run simultaneously.
 
@@ -144,25 +182,25 @@ During the demonstration, the BusyBox Job continuously generates HTTP requests t
 The Horizontal Pod Autoscaler (HPA) does not create Pods directly. Instead, Kubernetes follows the controller hierarchy shown below.
 
 ```text
-                CPU Load
-                    │
-                    ▼
-                Metrics Server
-                    │
-                    ▼
+                        CPU Load
+                            │
+                            ▼
+                        Metrics Server
+                            │
+                            ▼
                 Horizontal Pod Autoscaler
-                    │
-                    ▼
-                Deployment
-                    │
-                    ▼
-                ReplicaSet
-                    │
-                    ▼
-                Pod Creation
-                    │
-                    ▼
-                ResourceQuota Validation
+                            │
+                            ▼
+                        Deployment
+                            │
+                            ▼
+                        ReplicaSet
+                            │
+                            ▼
+                        Pod Creation
+                            │
+                            ▼
+                    ResourceQuota Validation
 ```
 
 When CPU utilization exceeds the configured threshold, the HPA updates the **Deployment's desired replica count**. The Deployment then updates its ReplicaSet, which attempts to create additional Pods. Before each Pod is admitted into the namespace, Kubernetes checks the configured ResourceQuota. If the namespace has reached its limits, Pod creation is rejected and the ReplicaSet reports `FailedCreate` events.
@@ -212,8 +250,6 @@ hpaunderload/
 | `runbook.md`       | Operational guide describing deployment, testing, and troubleshooting procedures. |
 | `evidence/`        | Screenshots and command outputs collected during project verification.            |
 
----
-
 ## Technologies Used
 
 The following tools and technologies were used to build and demonstrate this project.
@@ -225,12 +261,6 @@ The following tools and technologies were used to build and demonstrate this pro
 | kind                            | Creates a local multi-node Kubernetes cluster.                         |
 | Kubernetes                      | Deploys and manages the application.                                   |
 | Metrics Server                  | Provides CPU and memory metrics for the HPA.                           |
-| Horizontal Pod Autoscaler (HPA) | Automatically adjusts the number of replicas based on CPU utilization. |
-| ResourceQuota                   | Limits namespace resources to demonstrate quota enforcement.           |
-| BusyBox                         | Generates HTTP requests during the load test.                          |
-| Git                             | Version control.                                                       |
-
----
 
 ## Prerequisites
 
@@ -583,7 +613,7 @@ Separating the load generator from the application keeps the demonstration repro
 
 Several design choices were made to keep the project simple, reproducible, and easy to demonstrate.
 
-### Go instead of Python
+### Go Language
 
 Go produces a single compiled executable.
 
@@ -649,23 +679,6 @@ These limitations simplify the environment while still demonstrating Kubernetes 
 
 ---
 
-## Key Learning Outcomes
-
-This project provided hands-on experience with several Kubernetes concepts, including:
-
-- building and containerizing a Go application;
-- deploying workloads using Kubernetes Deployments;
-- configuring ClusterIP Services;
-- installing and troubleshooting Metrics Server;
-- implementing Horizontal Pod Autoscaler;
-- understanding the relationship between Deployments, ReplicaSets, and Pods;
-- applying namespace ResourceQuota policies;
-- calculating replica limits using Pod and CPU quotas;
-- observing Kubernetes controller interactions through events; and
-- automating cluster deployment using shell scripts.
-
----
-
 ## Project Demonstration
 
 The `evidence/` directory contains screenshots and command outputs collected during project verification.
@@ -688,20 +701,11 @@ These screenshots demonstrate that the application and Kubernetes resources beha
 
 ## References
 
-- Kubernetes Documentation  
-  https://kubernetes.io/docs/
-
-- Horizontal Pod Autoscaler  
-  https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
-
-- Metrics Server  
-  https://github.com/kubernetes-sigs/metrics-server
-
-- kind (Kubernetes in Docker)  
-  https://kind.sigs.k8s.io/
-
-- Go Programming Language  
-  https://go.dev/
+- Kubernetes Documentation  https://kubernetes.io/docs/
+- Horizontal Pod Autoscaler  https://kubernetes.io/docs/tasks/run-application/horizontal-pod-autoscale/
+- Metrics Server  https://github.com/kubernetes-sigs/metrics-server
+- kind (Kubernetes in Docker)  https://kind.sigs.k8s.io/
+- Go Programming Language  https://go.dev/
 
 ---
 
