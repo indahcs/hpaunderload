@@ -249,17 +249,6 @@ hpaunderload/
 | `kind-config.yaml` | Defines the local Kubernetes cluster topology.                                    |
 | `runbook.md`       | Operational guide describing deployment, testing, and troubleshooting procedures. |
 | `evidence/`        | Screenshots and command outputs collected during project verification.            |
-| File / Directory   | Description                                                                       |
-| ------------------ | --------------------------------------------------------------------------------- |
-| `app/`             | Contains the Go application source code and Dockerfile.                           |
-| `manifests/`       | Kubernetes manifests used to deploy the project resources.                        |
-| `bootstrap.sh`     | Creates a clean Kubernetes environment and deploys the application automatically. |
-| `apply-quota.sh`   | Applies configurable namespace ResourceQuota values.                              |
-| `kind-config.yaml` | Defines the local Kubernetes cluster topology.                                    |
-| `runbook.md`       | Operational guide describing deployment, testing, and troubleshooting procedures. |
-| `evidence/`        | Screenshots and command outputs collected during project verification.            |
-
----
 
 ## Technologies Used
 
@@ -272,31 +261,11 @@ The following tools and technologies were used to build and demonstrate this pro
 | kind                            | Creates a local multi-node Kubernetes cluster.                         |
 | Kubernetes                      | Deploys and manages the application.                                   |
 | Metrics Server                  | Provides CPU and memory metrics for the HPA.                           |
-| Technology                      | Purpose                                                                |
-| ------------------------------- | ---------------------------------------------------------------------- |
-| Go                              | Implements the CPU burn application.                                   |
-| Docker                          | Builds and runs the application container.                             |
-| kind                            | Creates a local multi-node Kubernetes cluster.                         |
-| Kubernetes                      | Deploys and manages the application.                                   |
-| Metrics Server                  | Provides CPU and memory metrics for the HPA.                           |
-| Horizontal Pod Autoscaler (HPA) | Automatically adjusts the number of replicas based on CPU utilization. |
-| ResourceQuota                   | Limits namespace resources to demonstrate quota enforcement.           |
-| BusyBox                         | Generates HTTP requests during the load test.                          |
-| Git                             | Version control.                                                       |
-
----
 
 ## Prerequisites
 
 The following software must already be installed on the host machine.
 
-| Software                | Version Used  |
-| ----------------------- | ------------- |
-| Docker Desktop          | 29.x or later |
-| kind                    | v0.32.0       |
-| kubectl                 | v1.34.x       |
-| Git                     | 2.52.x        |
-| Go _(development only)_ | 1.23 or later |
 | Software                | Version Used  |
 | ----------------------- | ------------- |
 | Docker Desktop          | 29.x or later |
@@ -330,15 +299,6 @@ The project consists of several independent Kubernetes resources that work toget
 | Horizontal Pod Autoscaler | Monitors CPU utilization and adjusts the desired replica count.     |
 | ResourceQuota             | Restricts the number of Pods and CPU requests within the namespace. |
 | Load Job                  | Generates continuous HTTP requests to create CPU load.              |
-| Component                 | Description                                                         |
-| ------------------------- | ------------------------------------------------------------------- |
-| Namespace                 | Isolates all project resources from other workloads.                |
-| Deployment                | Runs the Go CPU burn application.                                   |
-| ClusterIP Service         | Provides an internal stable endpoint for the application.           |
-| Metrics Server            | Supplies CPU metrics to the HPA.                                    |
-| Horizontal Pod Autoscaler | Monitors CPU utilization and adjusts the desired replica count.     |
-| ResourceQuota             | Restricts the number of Pods and CPU requests within the namespace. |
-| Load Job                  | Generates continuous HTTP requests to create CPU load.              |
 
 ---
 
@@ -355,22 +315,9 @@ The application is configured with the following resource settings.
 | Minimum Replicas         | 1          |
 | Maximum Replicas         | 10         |
 | Scale-down Stabilization | 60 seconds |
-| Property                 | Value      |
-| ------------------------ | ---------- |
-| Container Port           | 8080       |
-| CPU Request              | 200m       |
-| CPU Limit                | 500m       |
-| HPA Target CPU           | 50%        |
-| Minimum Replicas         | 1          |
-| Maximum Replicas         | 10         |
-| Scale-down Stabilization | 60 seconds |
 
 The Go application exposes two HTTP endpoints.
 
-| Endpoint  | Purpose                                                                 |
-| --------- | ----------------------------------------------------------------------- |
-| `/`       | Performs CPU-intensive work and returns the student ID.                 |
-| `/health` | Returns a health response for Kubernetes readiness and liveness probes. |
 | Endpoint  | Purpose                                                                 |
 | --------- | ----------------------------------------------------------------------- |
 | `/`       | Performs CPU-intensive work and returns the student ID.                 |
@@ -382,10 +329,6 @@ The Go application exposes two HTTP endpoints.
 
 The default namespace ResourceQuota is intentionally restrictive.
 
-| Resource     | Default Value |
-| ------------ | ------------- |
-| Pods         | 6             |
-| CPU Requests | 1000m         |
 | Resource     | Default Value |
 | ------------ | ------------- |
 | Pods         | 6             |
@@ -415,14 +358,11 @@ Under the default quota:
 
 ```text
 Pod quota: 6 total Pods − 3 load Pods = 3 application Pods
-Pod quota: 6 total Pods − 3 load Pods = 3 application Pods
 ```
 
 CPU request quota:
 
 ```text
-1000m − 150m = 850m
-850m ÷ 200m = 4 application Pods
 1000m − 150m = 850m
 850m ÷ 200m = 4 application Pods
 ```
@@ -630,12 +570,6 @@ Configuration:
 | Maximum replicas         | 10         |
 | CPU target               | 50%        |
 | Scale-down stabilization | 60 seconds |
-| Property                 | Value      |
-| ------------------------ | ---------- |
-| Minimum replicas         | 1          |
-| Maximum replicas         | 10         |
-| CPU target               | 50%        |
-| Scale-down stabilization | 60 seconds |
 
 The HPA continuously monitors CPU utilization reported by Metrics Server.
 
@@ -651,10 +585,6 @@ This component is central to the project because it demonstrates that Kubernetes
 
 Default quota:
 
-| Resource     | Limit |
-| ------------ | ----- |
-| Pods         | 6     |
-| requests.cpu | 1000m |
 | Resource     | Limit |
 | ------------ | ----- |
 | Pods         | 6     |
@@ -784,4 +714,3 @@ These screenshots demonstrate that the application and Kubernetes resources beha
 This project was completed as part of **CLO835 – Portable Technologies in Cloud** at Seneca Polytechnic.
 
 The project combines concepts covered throughout the course, including containerization, Kubernetes deployments, Horizontal Pod Autoscaler, Metrics Server, and ResourceQuota. It was developed as a hands-on exercise to better understand how Kubernetes controllers interact during autoscaling.
-
