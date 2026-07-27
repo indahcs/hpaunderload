@@ -104,7 +104,6 @@ docker --version
 kind version
 kubectl version --client
 git --version
-go version
 ```
 
 Confirm that Docker Desktop is running.
@@ -650,7 +649,7 @@ Open monitoring commands before generating load.
 
 This allows scaling events to be observed in real time.
 
-### Terminal 1 – Monitor the HPA
+### Terminal 1. Monitor the HPA
 
 ```bash
 kubectl get hpa -n 115029258-hpa -w
@@ -661,7 +660,7 @@ Observe:
 - TARGETS
 - REPLICAS
 
-### Terminal 2 - Monitor the Pods.
+### Terminal 2. Monitor the Pods.
 
 ```bash
 kubectl get pods -n 115029258-hpa -w
@@ -673,7 +672,7 @@ Observe:
 - Pod status
 - Pod termination
 
-### Terminal 3 — Monitor Pod CPU Usage
+### Terminal 3. Monitor Pod CPU Usage
 
 `kubectl top` does not support continuous watch mode. On Linux, the `watch` utility can repeatedly execute the command.
 
@@ -945,9 +944,9 @@ Replicas:   3 current / 10 desired
 Condition:
 
 ```text
-  Type             Status  Reason
-  ----             ------  ------
-  ReplicaFailure   True    FailedCreate
+Type             Status  Reason
+----             ------  ------
+ReplicaFailure   True    FailedCreate
 ```
 
 Events similar to:
