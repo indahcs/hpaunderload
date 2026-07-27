@@ -67,7 +67,7 @@ deployment "metrics-server" successfully rolled out
 ============================================================
 namespace/115029258-hpa created
 deployment.apps/115029258-burn created
-service/115029258-burn-svc created
+service/s115029258-burn-svc created
   Waiting for the application Deployment
 Waiting for deployment "115029258-burn" rollout to finish: 0 of 1 updated replicas are available...
 deployment "115029258-burn" successfully rolled out
@@ -126,7 +126,7 @@ NAME                                 READY   STATUS    RESTARTS   AGE
 pod/115029258-burn-756969954-k7cx4   1/1     Running   0          41s
 
 NAME                         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
-service/115029258-burn-svc   ClusterIP   10.96.55.176   <none>        80/TCP    41s
+service/s115029258-burn-svc   ClusterIP   10.96.55.176   <none>        80/TCP    41s
 
 NAME                             READY   UP-TO-DATE   AVAILABLE   AGE
 deployment.apps/115029258-burn   1/1     1            1           41s

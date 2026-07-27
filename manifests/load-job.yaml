@@ -27,9 +27,9 @@ spec:
             - /bin/sh
             - -c
             - |
-              echo "Starting load against 115029258-burn-svc"
+              echo "Starting load against s115029258-burn-svc"
               while true; do
-                wget -q -O- http://115029258-burn-svc
+                wget -q -O- http://s115029258-burn-svc
                 echo
               done
           
