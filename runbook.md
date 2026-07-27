@@ -305,7 +305,7 @@ NAME                                 READY   STATUS    RESTARTS   AGE
 pod/115029258-burn-756969954-hnmpm   1/1     Running   0          2m
 
 NAME                                TYPE        CLUSTER-IP      PORT(S)
-service/115029258-burn-svc          ClusterIP   10.96.243.121   80/TCP
+service/s115029258-burn-svc          ClusterIP   10.96.243.121   80/TCP
 
 NAME                                READY   UP-TO-DATE   AVAILABLE
 deployment.apps/115029258-burn      1/1     1            1
@@ -359,7 +359,7 @@ spec:
       command:
         - wget
         - -qO-
-        - http://115029258-burn-svc
+        - http://s115029258-burn-svc
       resources:
         requests:
           cpu: 10m
@@ -413,7 +413,7 @@ spec:
       command:
         - wget
         - -qO-
-        - http://115029258-burn-svc/health
+        - http://s115029258-burn-svc/health
       resources:
         requests:
           cpu: 10m

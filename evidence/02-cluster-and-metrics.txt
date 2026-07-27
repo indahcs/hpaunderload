@@ -23,7 +23,7 @@ NAME                                 READY   STATUS    RESTARTS   AGE
 pod/115029258-burn-756969954-k7cx4   1/1     Running   0          91s
 
 NAME                         TYPE        CLUSTER-IP     EXTERNAL-IP   PORT(S)   AGE
-service/115029258-burn-svc   ClusterIP   10.96.55.176   <none>        80/TCP    91s
+service/s115029258-burn-svc   ClusterIP   10.96.55.176   <none>        80/TCP    91s
 
 NAME                             READY   UP-TO-DATE   AVAILABLE   AGE
 deployment.apps/115029258-burn   1/1     1            1           91s
