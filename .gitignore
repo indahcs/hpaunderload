@@ -26,5 +26,3 @@ app/server
 
 # Generated quota files
 rendered-quota.yaml
-
-demo-script.md
