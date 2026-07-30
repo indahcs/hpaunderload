@@ -547,24 +547,28 @@ The ResourceQuota is now ready for the load test.
 
 Estimate how many application Pods can run before the ResourceQuota prevents additional Pods from being created. This prediction will later be compared with the actual Kubernetes behavior.
 
-## Current Configuration
+## Default Configuration
 
-### Namespace ResourceQuota
+### Namespace ResourceQuota (Variable)
 
-| **Namespace ResourceQuota (Variable)** | Value |
-| -------------------------------------- | ----: |
-| Pods                                   |     6 |
-| CPU Requests                           | 1000m |
+| Resource | Value |
+|----------|------:|
+| Pods | 6 |
+| CPU Requests | 1000m |
 
-| **Application Configuration (Fixed)** | Value |
-| ------------------------------------- | ----: |
-| CPU Request                           |  200m |
-| CPU Limit                             |  500m |
+### Application
 
-| **Load Generator Configuration (Fixed)** | Value |
-| ---------------------------------------- | ----: |
-| Load Pods                                |     3 |
-| CPU Request per Pod                      |   50m |
+| Resource | Value |
+|----------|------:|
+| CPU Request | 200m |
+| CPU Limit | 500m |
+
+### Load Generator
+
+| Resource | Value |
+|----------|------:|
+| Parallel Pods | 3 |
+| CPU Request per Pod | 50m |
 
 ## Pod Calculation
 
@@ -965,7 +969,7 @@ Confirm that:
 - it attempted to create additional Pods; and
 - Pod creation failed because of the namespace ResourceQuota.
 
-This confirms that the ReplicaSet—not the HPA—is responsible for creating Pods.
+This confirms that the ReplicaSet (not the HPA) is responsible for creating Pods.
 
 ---
 
